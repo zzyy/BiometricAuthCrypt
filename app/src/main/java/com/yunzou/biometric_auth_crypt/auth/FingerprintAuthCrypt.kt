@@ -64,6 +64,10 @@ class FingerprintAuthCrypt(val context: Context) : BiometricAuthCrypt {
             cancellationSignal,
             object : FingerprintManagerCompat.AuthenticationCallback() {
                 override fun onAuthenticationError(errMsgId: Int, errString: CharSequence?) {
+                    // errMsgId == 5 时, 为用户主动取消
+                    if (errMsgId == 5){
+                        return
+                    }
                     callback.onAuthenticationError(errMsgId, errString)
                 }
 
@@ -91,6 +95,11 @@ class FingerprintAuthCrypt(val context: Context) : BiometricAuthCrypt {
 
     fun cancel() {
         cancellationSignal?.cancel()
+    }
+
+    fun cleanKey(){
+        val keyStore = getKeyStore()
+        keyStore.deleteEntry(CRYPT_KEY_ALIAS)
     }
 
 
@@ -154,6 +163,10 @@ class FingerprintAuthCrypt(val context: Context) : BiometricAuthCrypt {
                 .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA1)
                 .setBlockModes(CRYPT_MODE)
                 .setEncryptionPaddings(CRYPT_PADDING)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            builder.setInvalidatedByBiometricEnrollment(false)
+        }
 
         val keyPairGenerator = KeyPairGenerator.getInstance(CRYPT_ALGORITHM, KEY_STORE_NAME)
         keyPairGenerator.initialize(builder.build())

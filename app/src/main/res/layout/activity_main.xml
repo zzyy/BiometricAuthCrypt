@@ -14,4 +14,8 @@
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="decrypt"
             android:onClick="decrypt"/>
+
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="cancel"
+            android:onClick="cancel"/>
 </LinearLayout>
